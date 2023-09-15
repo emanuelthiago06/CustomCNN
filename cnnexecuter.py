@@ -2,7 +2,9 @@ import os
 import numpy as np
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, roc_auc_score
 from sklearn.model_selection import train_test_split
-from model import build_model
+from model import build_model, build_model_alt
+import keras
+import keras_tuner
 
 class CNNExecuter:
     def __init__(self,val_path, train_path, test_path):
@@ -29,6 +31,21 @@ class CNNExecuter:
     def call_model(self, input_shape):
         model = build_model(input_shape=input_shape)
         return model
+    
+    def __calc_hiperparameters(self) -> None:
+        tuner = keras_tuner.BayesianOptimization(
+            hypermodel=build_model,
+            objective="val_accuracy",
+            max_trials=10,
+            executions_per_trial=10,
+            overwrite=True,
+            directory="keras_dir",
+            project_name="helloworld",
+            )
+        tuner.search(self.__x_train, self.__y_train, epochs=10, validation_data=(self.__x_val, self.__y_val))
+        models = tuner.get_best_models(num_models=2)
+        self.__best_model = models[0]
+        tuner.results_summary(num_trials = 10)
 
     def calc_metrics(self, model, X_test, y_test):
         y_pred = model.predict(X_test)
