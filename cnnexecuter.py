@@ -47,6 +47,29 @@ class CNNExecuter:
         self.__best_model = models[0]
         tuner.results_summary(num_trials = 10)
 
+    def __execute_model(self):
+        if not self.__run_alt:
+            self.__calc_hiperparameters()
+        self.__best_model.build(input_shape=(self.__x_train.shape[1],))
+        BATCH_SIZE = None
+        history = self.__best_model.fit(
+            self.__x_train, self.__y_train, 
+            batch_size = BATCH_SIZE,
+            epochs= self.__epochs,
+            callbacks= None,
+            validation_data=(self.__x_val, self.__y_val),
+            validation_batch_size = BATCH_SIZE,
+            class_weight=self.__class_weight,
+            verbose = 1
+        )
+        self.__best_model.evaluate(x = self.__x_val, y = self.__y_val, batch_size=None, return_dict=False)
+        self.__last_acc = history.history["val_accuracy"][-1]
+        self.__last_sen = history.history["val_Sen"][-1]
+        self.__summary = history.history
+        self.__last_prec = history.history["val_Pres"][-1]
+        self.__last_f1 = 2*(self.__last_prec*self.__last_sen)/(self.__last_prec+self.__last_sen)
+        self.__best_model.summary()
+
     def calc_metrics(self, model, X_test, y_test):
         y_pred = model.predict(X_test)
         y_pred_binary = np.round(y_pred)
