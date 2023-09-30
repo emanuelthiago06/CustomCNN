@@ -6,6 +6,8 @@ from model import build_model, build_model_alt
 import keras
 import keras_tuner
 
+CONST = 0
+
 class CNNExecuter:
     def __init__(self,val_path, train_path, test_path):
         self.val_path = val_path

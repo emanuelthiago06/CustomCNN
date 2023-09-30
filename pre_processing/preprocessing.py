@@ -3,12 +3,11 @@ import numpy as np
 import cv2
 import pydicom
 import matplotlib.pyplot as plt
-from skimage.filters import (threshold_otsu,sobel, threshold_triangle, threshold_niblack, threshold_sauvola)
-from skimage import img_as_ubyte
+
 
 class PreProcessing:
     def __init__(self, **kwargs):
-        self.files = kwargs["files"]
+        self.files = [] if "files" not in kwargs else kwargs["files"]
         self.images = []
 
     def read_img(self, janelamento = False):
@@ -21,9 +20,8 @@ class PreProcessing:
     @staticmethod
     def make_jan(image, janelamento: list):
         """Janelamento : Lista com o valor mínimo e máximo de janela, transforma esse valor em um array numpy"""
-        janelamento_array = np.arange(janelamento[0],janelamento[1])
-        min_valor = min(janelamento_array)
-        max_valor = max(janelamento_array)
+        min_valor = min(janelamento)
+        max_valor = max(janelamento)
         imagem_janelada = np.copy(image)
         imagem_janelada[image < min_valor] = min_valor
         imagem_janelada[image > max_valor] = max_valor
