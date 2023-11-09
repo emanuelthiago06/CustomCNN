@@ -3,7 +3,8 @@ import numpy as np
 import cv2
 import pydicom
 import matplotlib.pyplot as plt
-
+from skimage.filters import (threshold_otsu,sobel, threshold_triangle, threshold_niblack, threshold_sauvola)
+from skimage import img_as_ubyte
 
 class PreProcessing:
     def __init__(self, **kwargs):
@@ -26,4 +27,10 @@ class PreProcessing:
         imagem_janelada[image < min_valor] = min_valor
         imagem_janelada[image > max_valor] = max_valor
         return imagem_janelada
-
+    
+    @staticmethod
+    def apply_otsu(image):
+        thresh_otsu = threshold_otsu(image)
+        binary_img_1 = image > thresh_otsu
+        binary_img_1 = img_as_ubyte(binary_img_1)
+        return binary_img_1
